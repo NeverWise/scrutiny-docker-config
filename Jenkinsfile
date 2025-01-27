@@ -24,7 +24,15 @@ pipeline {
 
         stage('Build images and start containers') {
             steps {
-                DEVICES="${params.DEVICES}" WEB_PORT="${params.WEB_PORT}" DB_PORT="${params.DB_PORT}" VOLUMES_PATH="${params.VOLUMES_PATH}" NOTIFICATIONS_PATH="${params.NOTIFICATIONS_PATH}" NETWORK_NAME="${env.NETWORK_NAME}" envsubst '$DEVICES' < docker-compose.yml | docker compose -f - up -d
+                script {
+                    DEVICES="${params.DEVICES}"
+                    WEB_PORT="${params.WEB_PORT}"
+                    DB_PORT="${params.DB_PORT}"
+                    VOLUMES_PATH="${params.VOLUMES_PATH}"
+                    NOTIFICATIONS_PATH="${params.NOTIFICATIONS_PATH}"
+                    NETWORK_NAME="${env.NETWORK_NAME}"
+                    sh "envsubst '$DEVICES' < docker-compose.yml | docker compose -f - up -d"
+                }
             }
         }
     }
