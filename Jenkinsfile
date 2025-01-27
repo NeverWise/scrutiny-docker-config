@@ -26,8 +26,7 @@ pipeline {
         stage('Build docker-compose.yml') {
             steps {
                 script {
-                    DEVICES="${params.DEVICES}"
-                    sh "envsubst '$DEVICES' < docker-compose.yml.tpl > docker-compose.yml"
+                    sh "DEVICES='${params.DEVICES}' envsubst '\$DEVICES' < docker-compose.yml.tpl > docker-compose.yml"
                 }
             }
         }
