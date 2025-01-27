@@ -5,6 +5,13 @@ pipeline {
         pollSCM('H/5 * * * *')
     }
 
+    environment {
+        WEB_PORT="${params.WEB_PORT}"
+        DB_PORT="${params.DB_PORT}"
+        VOLUMES_PATH="${params.VOLUMES_PATH}"
+        NOTIFICATIONS_PATH="${params.NOTIFICATIONS_PATH}"
+    }
+
     stages {
         stage('Stop containers and remove images') {
             steps {
@@ -16,22 +23,19 @@ pipeline {
             }
         }
 
-        stage('Checkout source code') {
+        stage('Build docker-compose.yml') {
             steps {
-                git branch: 'main', url: 'https://github.com/NeverWise/scrutiny-docker-config.git'
+                script {
+                    DEVICES="${params.DEVICES}"
+                    sh "envsubst '$DEVICES' < docker-compose.yml.tpl > docker-compose.yml"
+                }
             }
         }
 
         stage('Build images and start containers') {
             steps {
                 script {
-                    DEVICES="${params.DEVICES}"
-                    WEB_PORT="${params.WEB_PORT}"
-                    DB_PORT="${params.DB_PORT}"
-                    VOLUMES_PATH="${params.VOLUMES_PATH}"
-                    NOTIFICATIONS_PATH="${params.NOTIFICATIONS_PATH}"
-                    NETWORK_NAME="${env.NETWORK_NAME}"
-                    sh "envsubst '$DEVICES' < docker-compose.yml | docker compose -f - up -d"
+                    sh 'docker compose up -d'
                 }
             }
         }
